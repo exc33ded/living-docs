@@ -17,7 +17,13 @@ docs/
   DOCS-LOG.md                  newest entry first
 ```
 
-Folders are not fixed. A topic can be one file or, once it grows past one page, a folder of files.
+Folders follow the code, at every level:
+
+- **New area:** a new kind of code (database, workers, CLI, infra) gets its own `technical/<area>/`.
+- **Inside an area:** when the code has its own structure, mirror it in subfolders, e.g. `backend/api/`, `backend/jobs/`, `frontend/components/`, `frontend/pages/`. The same goes for `non-technical/` when a product area has several topics.
+- **When a topic grows:** once a doc runs past about a page, split it into a folder, e.g. `backend/auth.md` becomes `backend/auth/overview.md` and `backend/auth/tokens.md`.
+- **No folders for one short doc.** A folder needs at least two docs in it.
+- **Moving or splitting a doc:** carry its `covers` over, fix every link to it in `docs/`, and log the move.
 
 Every technical doc starts with front matter that lists the code it describes:
 
@@ -39,7 +45,9 @@ covers: [server.js, schema.sql]
 
 3. **Match changes to docs.** Glob every `covers` in `docs/` and list the docs whose paths changed. For a changed path no doc covers:
    - If it belongs to an existing area, add it to the best doc's `covers`, or write a new topic doc in that area.
-   - If it is a new kind of code (a new directory, a new layer such as a database or worker), create `docs/technical/<area>/` with a first doc for it.
+   - If it is a new kind of code (a new layer such as a database or worker), create `docs/technical/<area>/` with a first doc for it.
+   - If it is a new part of an existing area (e.g. a new `src/api/` directory in the backend), create the matching subfolder, e.g. `technical/backend/api/`, following the folder rules above.
+   - After updating, if a doc has grown past about a page, split it into a folder.
    - Skip changes with nothing to document (formatting, tests that only add cases, lockfiles).
 
 4. **Update each affected doc.** Rewrite only the sections the change made wrong or incomplete. Keep the existing tone and structure. If a user-visible behaviour changed, update the matching `non-technical/` doc too.
