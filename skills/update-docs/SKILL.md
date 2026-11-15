@@ -1,0 +1,70 @@
+---
+name: update-docs
+description: Keep docs/ in sync with the code. Reads what changed since the last sync, updates the affected docs, removes references to code that no longer exists, creates folders for new code areas, and logs every change in docs/DOCS-LOG.md. Use when the user says "update docs", "/update-docs", "sync docs", or after a commit that changed code.
+---
+
+# Update docs
+
+## Layout
+
+```
+docs/
+  non-technical/<topic>.md     what the product does and how to use it, no code
+  technical/
+    frontend/<topic>.md
+    backend/<topic>.md
+    <area>/<topic>.md          any other code area (database, workers, ...), made when needed
+  DOCS-LOG.md                  newest entry first
+```
+
+Folders are not fixed. A topic can be one file or, once it grows past one page, a folder of files.
+
+Every technical doc starts with front matter that lists the code it describes:
+
+```yaml
+---
+covers: [server.js, schema.sql]
+---
+```
+
+`covers` takes paths or globs. It is how a code change is matched to the docs it affects. Non-technical docs also have `covers`, pointing at the code behind the user-facing feature.
+
+## Steps
+
+1. **Find the sync point.** Read the first `## ` heading in `docs/DOCS-LOG.md`. It ends with the commit sha the docs were last synced to.
+   - No `docs/` or no log yet: do the **first run** below instead.
+   - That sha equals `git rev-parse --short HEAD`: say the docs are already up to date, and stop.
+
+2. **Read what changed.** Run `git log --oneline <sha>..HEAD` and `git diff --stat <sha>..HEAD -- . ':!docs'`. If nothing outside `docs/` changed, add no log entry, say so and stop. Otherwise read the full diff for each changed file. The commit messages explain why each change was made. Use them.
+
+3. **Match changes to docs.** Glob every `covers` in `docs/` and list the docs whose paths changed. For a changed path no doc covers:
+   - If it belongs to an existing area, add it to the best doc's `covers`, or write a new topic doc in that area.
+   - If it is a new kind of code (a new directory, a new layer such as a database or worker), create `docs/technical/<area>/` with a first doc for it.
+   - Skip changes with nothing to document (formatting, tests that only add cases, lockfiles).
+
+4. **Update each affected doc.** Rewrite only the sections the change made wrong or incomplete. Keep the existing tone and structure. If a user-visible behaviour changed, update the matching `non-technical/` doc too.
+
+5. **Remove stale references.** In every doc you touched, and in any other doc whose `covers` includes a changed or deleted file, check every file path, function, endpoint, table, env var and setting it names in backticks. Grep the code for each one. If it no longer exists, fix the doc to describe what replaced it, or delete the passage. Never leave a doc describing code that is gone. Also drop dead paths from `covers`.
+
+6. **Log it.** Add a new entry at the top of `docs/DOCS-LOG.md`, under the title:
+
+   ```markdown
+   ## 2026-11-15 · a1b2c3d
+   Commits: a1b2c3d Add feed refresh; 9f8e7d6 Fix reader layout
+   - updated `technical/backend/feeds.md`: new per-feed refresh endpoint
+   - created `technical/database/schema.md`: no doc covered schema.sql
+   - removed `refreshAll()` from `technical/frontend/discover.md`: no longer in the code
+   ```
+
+   Use today's date and the short sha of HEAD. One line per doc changed, saying what changed and why.
+
+7. **Do not commit.** Leave the changes for the user to review, then tell them which docs changed.
+
+## First run
+
+When `docs/` or the log does not exist:
+
+1. Survey the repo: `git ls-files`, the README and any product notes, and the main entry points.
+2. Decide the areas from the code you find (usually frontend and backend, plus any others such as database), and the non-technical topics from the product's features.
+3. Write each doc with its `covers` front matter. Describe what the code does and how the parts connect, not every line.
+4. Create `docs/DOCS-LOG.md` with a `# Docs log` title and a first entry for HEAD that lists every doc created.

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "living-docs",
+  "owner": { "name": "exc33ded" },
+  "plugins": [
+    {
+      "name": "living-docs",
+      "source": "./",
+      "description": "Keeps docs/ in sync with the code after every commit, with a log of what changed and when.",
+      "category": "productivity"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+#!/bin/sh
+# Opt-in: `git config core.hooksPath .githooks`. After each commit you make yourself, runs
+# /update-docs in the background and leaves the doc edits uncommitted for review.
+# Output goes to .git/update-docs.log.
+
+[ -n "$CLAUDECODE" ] && exit 0            # inside Claude Code the PostToolUse hook handles it
+command -v claude >/dev/null || exit 0
+git diff-tree --no-commit-id --name-only -r HEAD | grep -qv '^docs/' || exit 0   # docs-only commit
+
+nohup claude -p "Run the update-docs skill." \
+  --permission-mode acceptEdits \
+  --allowedTools "Bash(git log:*)" "Bash(git diff:*)" "Bash(git rev-parse:*)" "Bash(git ls-files:*)" Read Edit Write Glob Grep \
+  > .git/update-docs.log 2>&1 &
