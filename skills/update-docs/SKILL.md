@@ -1,6 +1,6 @@
 ---
 name: update-docs
-description: Keep docs/ in sync with the code. Reads what changed since the last sync, updates the affected docs, removes references to code that no longer exists, creates folders for new code areas, and logs every change in docs/DOCS-LOG.md. Use when the user says "update docs", "/update-docs", "sync docs", or after a commit that changed code.
+description: Keep docs/ in sync with the code. Reads what changed since the last sync, updates the affected docs, removes references to code that no longer exists, creates folders for new code areas, and logs every change in docs/docs.log. Use when the user says "update docs", "/update-docs", "sync docs", or after a commit that changed code.
 ---
 
 # Update docs
@@ -14,7 +14,7 @@ docs/
     frontend/<topic>.md
     backend/<topic>.md
     <area>/<topic>.md          any other code area (database, workers, ...), made when needed
-  DOCS-LOG.md                  newest entry first
+  docs.log                     plain-text log, newest entry at the bottom
 ```
 
 Folders follow the code, at every level:
@@ -37,7 +37,7 @@ covers: [server.js, schema.sql]
 
 ## Steps
 
-1. **Find the sync point.** Read the first `## ` heading in `docs/DOCS-LOG.md`. It ends with the commit sha the docs were last synced to.
+1. **Find the sync point.** Run `grep '^== ' docs/docs.log | tail -1`. That is the last entry's first line, and its third field is the commit sha the docs were last synced to.
    - No `docs/` or no log yet: do the **first run** below instead.
    - That sha equals `git rev-parse --short HEAD`: say the docs are already up to date, and stop.
 
@@ -54,17 +54,17 @@ covers: [server.js, schema.sql]
 
 5. **Remove stale references.** In every doc you touched, and in any other doc whose `covers` includes a changed or deleted file, check every file path, function, endpoint, table, env var and setting it names in backticks. Grep the code for each one. If it no longer exists, fix the doc to describe what replaced it, or delete the passage. Never leave a doc describing code that is gone. Also drop dead paths from `covers`.
 
-6. **Log it.** Add a new entry at the top of `docs/DOCS-LOG.md`, under the title:
+6. **Log it.** Append a new entry to the end of `docs/docs.log`. Never edit old entries.
 
-   ```markdown
-   ## 2026-11-15 · a1b2c3d
-   Commits: a1b2c3d Add feed refresh; 9f8e7d6 Fix reader layout
-   - updated `technical/backend/feeds.md`: new per-feed refresh endpoint
-   - created `technical/database/schema.md`: no doc covered schema.sql
-   - removed `refreshAll()` from `technical/frontend/discover.md`: no longer in the code
+   ```
+   == 2026-11-15 a1b2c3d  commits: a1b2c3d Add feed refresh; 9f8e7d6 Fix reader layout
+   updated  technical/backend/feeds.md      new per-feed refresh endpoint
+   created  technical/database/schema.md    no doc covered schema.sql
+   removed  technical/frontend/discover.md  refreshAll() is no longer in the code
+   moved    technical/backend/auth.md -> technical/backend/auth/overview.md  grew past a page
    ```
 
-   Use today's date and the short sha of HEAD. One line per doc changed, saying what changed and why.
+   The first line is `== <today's date> <short sha of HEAD>  commits: <each commit since the sync point>`. Then add one line per doc changed: the action (`created`, `updated`, `removed`, `moved`, `deleted`), the path relative to `docs/`, and why. Leave a blank line before the entry.
 
 7. **Do not commit.** Leave the changes for the user to review, then tell them which docs changed.
 
@@ -75,4 +75,4 @@ When `docs/` or the log does not exist:
 1. Survey the repo: `git ls-files`, the README and any product notes, and the main entry points.
 2. Decide the areas from the code you find (usually frontend and backend, plus any others such as database), and the non-technical topics from the product's features.
 3. Write each doc with its `covers` front matter. Describe what the code does and how the parts connect, not every line.
-4. Create `docs/DOCS-LOG.md` with a `# Docs log` title and a first entry for HEAD that lists every doc created.
+4. Create `docs/docs.log`. Start it with the comment line `# docs.log: one entry per sync, newest at the bottom. The last "==" line is the sync point.`, then add a first entry for HEAD (`commits: first run`) that lists every doc created.

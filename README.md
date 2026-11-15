@@ -2,7 +2,7 @@
 
 A Claude Code plugin that keeps your project's `docs/` folder in sync with the code.
 
-After a commit, it reads what changed, updates the docs that describe that code, removes references to files and functions that no longer exist, and writes down what it did in `docs/DOCS-LOG.md`.
+After a commit, it reads what changed, updates the docs that describe that code, removes references to files and functions that no longer exist, and writes down what it did in `docs/docs.log`.
 
 ## How docs are organised
 
@@ -13,7 +13,7 @@ docs/
     frontend/<topic>.md
     backend/<topic>.md
     database/<topic>.md        any other area, created when the code has one
-  DOCS-LOG.md                  what changed, when, and in which commit
+  docs.log                     what changed, when, and in which commit
 ```
 
 Each doc starts with the code it describes:
@@ -66,17 +66,22 @@ It never commits. Doc changes are left in your working tree so you can review th
 
 ## The log
 
-`docs/DOCS-LOG.md`, newest entry first:
+`docs/docs.log` is a plain-text log. Each sync appends an entry at the bottom:
 
-```markdown
-## 2026-11-15 · a1b2c3d
-Commits: a1b2c3d Add feed refresh; 9f8e7d6 Fix reader layout
-- updated `technical/backend/feeds.md`: new per-feed refresh endpoint
-- created `technical/database/schema.md`: no doc covered schema.sql
-- removed `refreshAll()` from `technical/frontend/discover.md`: no longer in the code
+```
+== 2026-11-15 a1b2c3d  commits: a1b2c3d Add feed refresh; 9f8e7d6 Fix reader layout
+updated  technical/backend/feeds.md      new per-feed refresh endpoint
+created  technical/database/schema.md    no doc covered schema.sql
+removed  technical/frontend/discover.md  refreshAll() is no longer in the code
 ```
 
-The sha in the newest heading is where the next sync starts from.
+The sha on the last `==` line is where the next sync starts from. To see the history:
+
+```sh
+grep '^== ' docs/docs.log          # every sync
+tail -20 docs/docs.log             # the latest changes
+grep schema.md docs/docs.log       # everything that happened to one doc
+```
 
 ## License
 
