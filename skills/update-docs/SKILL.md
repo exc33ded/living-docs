@@ -40,6 +40,9 @@ covers: [server.js, schema.sql]
 1. **Find the sync point.** Run `grep '^== ' docs/docs.log | tail -1`. That is the last entry's first line, and its third field is the commit sha the docs were last synced to.
    - No `docs/` or no log yet: do the **first run** below instead.
    - That sha equals `git rev-parse --short HEAD`: say the docs are already up to date, and stop.
+   - **That commit no longer exists** (`git cat-file -e <sha>^{commit}` fails, usually because history was squashed, rebased or reset): tell the user the sync point is gone. Then use as the sync point the newest commit made before that entry's date: `git rev-list -1 --before="<entry date> 00:00" HEAD`. That may re-check a few changes that were already synced, which is harmless.
+     - If that finds nothing (every commit is newer), there is no base to compare from. Run a **full check** instead: treat every doc in `docs/` as affected, then do steps 4 and 5 against the current code. Rebuild nothing from scratch.
+     - Either way, note it in the log entry's first line, e.g. `commits: sync point 9f8e7d6 not found, compared from 4c3b2a1; …` or `commits: sync point 9f8e7d6 not found, full check`.
 
 2. **Read what changed.** Run `git log --oneline <sha>..HEAD` and `git diff --stat <sha>..HEAD -- . ':!docs'`. If nothing outside `docs/` changed, add no log entry, say so and stop. Otherwise read the full diff for each changed file. The commit messages explain why each change was made. Use them.
 
