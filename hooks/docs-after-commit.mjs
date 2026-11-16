@@ -1,4 +1,4 @@
-// PostToolUse hook: after Claude runs a `git commit` that changed code, tell Claude to run /update-docs.
+// PostToolUse hook: after Claude runs a `git commit` that changed code, tell Claude to run /update-docs and /update-readme.
 // ponytail: also fires if the commit failed; the skill stops when the log already matches HEAD.
 import { execSync } from 'node:child_process';
 
@@ -17,6 +17,6 @@ if (!files.some(f => !f.startsWith('docs/'))) process.exit(0);
 console.log(JSON.stringify({
   hookSpecificOutput: {
     hookEventName: 'PostToolUse',
-    additionalContext: 'A commit that changed code just landed. Run the update-docs skill to sync docs/ and log the changes.',
+    additionalContext: 'A commit that changed code just landed. Run the update-docs skill to sync docs/ and log the changes, then the update-readme skill to update README.md if the change affects it.',
   },
 }));

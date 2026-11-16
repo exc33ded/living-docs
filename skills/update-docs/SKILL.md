@@ -1,6 +1,7 @@
 ---
 name: update-docs
 description: Keep docs/ in sync with the code. Reads what changed since the last sync, updates the affected docs, removes references to code that no longer exists, creates folders for new code areas, and logs every change in docs/docs.log. Use when the user says "update docs", "/update-docs", "sync docs", or after a commit that changed code.
+model: sonnet
 ---
 
 # Update docs
