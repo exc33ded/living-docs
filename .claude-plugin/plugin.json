@@ -1,6 +1,6 @@
 {
   "name": "living-docs",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Keeps a project's docs/ in sync with its code: updates affected docs and the README (run steps, screenshots) after each commit, removes references to code that no longer exists, and logs every change.",
   "author": { "name": "exc33ded" },
   "repository": "https://github.com/exc33ded/living-docs",

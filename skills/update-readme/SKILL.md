@@ -12,13 +12,13 @@ The README is for someone who has never seen the project. It answers three quest
 
 1. **Find what changed.** Run `git log -1 --format=%h -- README.md` to get the last commit that touched the README. Then run `git log --oneline <sha>..HEAD` and `git diff --stat <sha>..HEAD -- . ':!docs' ':!README.md'`.
    - No README yet, or that command prints nothing: write the whole README (see **Sections** below).
-   - Nothing changed outside `docs/` and the README: say the README is up to date, and stop.
    - Otherwise read the diffs that matter for the README: anything that changes how the project is installed, configured, started or what it looks like. That means dependency files (`package.json`, `requirements.txt`, `pyproject.toml`, `go.mod`, ...), `Dockerfile` and `docker-compose*.yml`, `Makefile`, scripts, `.env.example`, ports, entry points, CLI flags, and UI code.
-   - If none of those changed, the README needs nothing. Say so and stop. Most commits end here.
+   - **Before stopping, check what the README is missing**, whatever the diff says: a "How to run" section that covers every way the repo can be run (see **Sections**), and, if the project has a UI, screenshots. Add anything missing even when no code changed.
+   - Stop only when none of those files changed and nothing is missing. Say the README is up to date. Most commits end here.
 
 2. **Update the sections the change made wrong.** Follow **Sections** below. Every command you write must come from a file in the repo (a script in `package.json`, a target in the `Makefile`, a service in `docker-compose.yml`, ...). Never invent a command, port, or env var. Grep for each one before writing it down, and remove any the README names that no longer exist.
 
-3. **Screenshots**, only when the project has a UI (web pages, desktop or terminal UI) and either UI code changed or the README has no screenshots yet. See **Screenshots** below.
+3. **Screenshots**, only when the project has a UI (web pages, desktop or terminal UI) and either UI code changed or the README has no screenshots yet. See **Screenshots** below. If you skip screenshots, say why in one line (no UI, nothing changed, app would not start, no screenshot tool).
 
 4. **Do not commit.** Leave the changes for the user to review, then tell them what changed in the README and why.
 
